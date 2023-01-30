@@ -34,6 +34,7 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
     companion object {
         const val FADE_DAY_NIGHT_MODE = 500
+
         @JvmField
         val LOG_TAG: String = ConfigBottomSheetDialogFragment::class.java.simpleName
     }
@@ -42,7 +43,11 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
     private var isNightMode = false
     private lateinit var activityCallback: FolioActivityCallback
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         return inflater.inflate(R.layout.view_config, container)
     }
 
@@ -224,30 +229,27 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
         colorAnimation.duration = FADE_DAY_NIGHT_MODE.toLong()
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        val attrs = intArrayOf(android.R.attr.navigationBarColor)
+        val typedArray = activity?.theme?.obtainStyledAttributes(attrs)
+        val defaultNavigationBarColor = typedArray?.getColor(
+            0,
+            ContextCompat.getColor(context!!, R.color.white)
+        )
+        val black = ContextCompat.getColor(context!!, R.color.black)
 
-            val attrs = intArrayOf(android.R.attr.navigationBarColor)
-            val typedArray = activity?.theme?.obtainStyledAttributes(attrs)
-            val defaultNavigationBarColor = typedArray?.getColor(
-                0,
-                ContextCompat.getColor(context!!, R.color.white)
-            )
-            val black = ContextCompat.getColor(context!!, R.color.black)
+        val navigationColorAnim = ValueAnimator.ofObject(
+            ArgbEvaluator(),
+            if (isNightMode) black else defaultNavigationBarColor,
+            if (isNightMode) defaultNavigationBarColor else black
+        )
 
-            val navigationColorAnim = ValueAnimator.ofObject(
-                ArgbEvaluator(),
-                if (isNightMode) black else defaultNavigationBarColor,
-                if (isNightMode) defaultNavigationBarColor else black
-            )
-
-            navigationColorAnim.addUpdateListener { valueAnimator ->
-                val value = valueAnimator.animatedValue as Int
-                activity?.window?.navigationBarColor = value
-            }
-
-            navigationColorAnim.duration = FADE_DAY_NIGHT_MODE.toLong()
-            navigationColorAnim.start()
+        navigationColorAnim.addUpdateListener { valueAnimator ->
+            val value = valueAnimator.animatedValue as Int
+            activity?.window?.navigationBarColor = value
         }
+
+        navigationColorAnim.duration = FADE_DAY_NIGHT_MODE.toLong()
+        navigationColorAnim.start()
 
         colorAnimation.start()
     }
@@ -255,10 +257,14 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
     private fun configSeekBar() {
         val thumbDrawable = ContextCompat.getDrawable(activity!!, R.drawable.seekbar_thumb)
         UiUtil.setColorIntToDrawable(config.themeColor, thumbDrawable)
-        UiUtil.setColorResToDrawable(R.color.grey_color, view_config_font_size_seek_bar.progressDrawable)
+        UiUtil.setColorResToDrawable(
+            R.color.grey_color,
+            view_config_font_size_seek_bar.progressDrawable
+        )
         view_config_font_size_seek_bar.thumb = thumbDrawable
 
-        view_config_font_size_seek_bar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        view_config_font_size_seek_bar.setOnSeekBarChangeListener(object :
+            SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
                 config.fontSize = progress
                 AppUtil.saveConfig(activity, config)
@@ -281,8 +287,9 @@ class ConfigBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
     private fun setAudioPlayerBackground() {
 
-        var mediaControllerFragment: Fragment? = fragmentManager?.findFragmentByTag(MediaControllerFragment.LOG_TAG)
-            ?: return
+        var mediaControllerFragment: Fragment? =
+            fragmentManager?.findFragmentByTag(MediaControllerFragment.LOG_TAG)
+                ?: return
         mediaControllerFragment = mediaControllerFragment as MediaControllerFragment
         if (isNightMode) {
             mediaControllerFragment.setDayMode()
