@@ -393,6 +393,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback, MediaControlle
             this, mEpubSourceType, mEpubFilePath,
             mEpubRawId, bookFileName
         )
+        Log.v(LOG_TAG, "::initBook(), path=$path")
         val extension: Publication.EXTENSION
         var extensionString: String? = null
         try {
