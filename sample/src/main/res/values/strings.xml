@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">FolioReader Sample</string>
+    <string name="app_name" translatable="false">FolioReader Sample</string>
+    <string name="title_activity_main" translatable="false">MainActivity</string>
 </resources>
