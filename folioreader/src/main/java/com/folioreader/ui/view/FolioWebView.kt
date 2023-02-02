@@ -274,7 +274,7 @@ class FolioWebView : WebView {
 
         val textSelectionMiddleDrawable = ContextCompat.getDrawable(
             context,
-            R.drawable.abc_text_select_handle_middle_mtrl_dark
+            R.drawable.arrow_down
         )
         handleHeight = textSelectionMiddleDrawable?.intrinsicHeight ?: (24 * density).toInt()
 
