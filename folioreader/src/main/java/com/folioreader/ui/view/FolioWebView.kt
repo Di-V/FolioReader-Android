@@ -362,7 +362,7 @@ class FolioWebView : WebView {
         bundle.putString(Constants.SELECTED_WORD, selectedText?.trim())
         dictionaryFragment.arguments = bundle
         dictionaryFragment.show(
-            parentFragment.fragmentManager!!,
+            parentFragment.parentFragmentManager,
             DictionaryFragment::class.java.name
         )
     }

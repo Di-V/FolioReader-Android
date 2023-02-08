@@ -7,6 +7,7 @@ import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 import com.folioreader.Constants;
+import com.folioreader.data.EpubSourceType;
 import com.folioreader.ui.activity.FolioActivity;
 
 import java.io.*;
@@ -20,7 +21,7 @@ public class FileUtil {
     private static final String FOLIO_READER_ROOT = "folioreader";
 
     public static String saveEpubFileAndLoadLazyBook(final Context context,
-                                                     FolioActivity.EpubSourceType epubSourceType,
+                                                     EpubSourceType epubSourceType,
                                                      String epubFilePath,
                                                      int epubRawId, String epubFileName) {
         String filePath;
@@ -31,10 +32,10 @@ public class FileUtil {
             filePath = getFolioEpubFilePath(epubSourceType, epubFilePath, epubFileName, context);
 
             if (!isFolderAvailable) {
-                if (epubSourceType.equals(FolioActivity.EpubSourceType.RAW)) {
+                if (epubSourceType.equals(EpubSourceType.RAW)) {
                     epubInputStream = context.getResources().openRawResource(epubRawId);
                     saveTempEpubFile(filePath, epubFileName, epubInputStream, context);
-                } else if (epubSourceType.equals(FolioActivity.EpubSourceType.ASSETS)) {
+                } else if (epubSourceType.equals(EpubSourceType.ASSETS)) {
                     AssetManager assetManager = context.getAssets();
                     epubFilePath = epubFilePath.replaceAll(Constants.ASSET, "");
                     epubInputStream = assetManager.open(epubFilePath);
@@ -57,12 +58,12 @@ public class FileUtil {
     }
 
     public static String getFolioEpubFilePath(
-            FolioActivity.EpubSourceType sourceType,
+            EpubSourceType sourceType,
             String epubFilePath,
             String epubFileName,
             Context context
     ) {
-        if (FolioActivity.EpubSourceType.SD_CARD.equals(sourceType)) {
+        if (EpubSourceType.SD_CARD.equals(sourceType)) {
             return epubFilePath;
         } else {
             return getFolioEpubFolderPath(epubFileName, context) + "/" + epubFileName + ".epub";
@@ -74,10 +75,10 @@ public class FileUtil {
         return file.isDirectory();
     }
 
-    public static String getEpubFilename(Context context, FolioActivity.EpubSourceType epubSourceType,
+    public static String getEpubFilename(Context context, EpubSourceType epubSourceType,
                                          String epubFilePath, int epubRawId) {
         String epubFileName;
-        if (epubSourceType.equals(FolioActivity.EpubSourceType.RAW)) {
+        if (epubSourceType.equals(EpubSourceType.RAW)) {
             Resources res = context.getResources();
             epubFileName = res.getResourceEntryName(epubRawId);
         } else {
