@@ -24,7 +24,8 @@ class FolioViewModel : ViewModel() {
     }
 
     fun setCurrentPage(currentChapter: Int) {
-        _chapter.update { it.copy(currentPage = currentChapter, allPages = "${it.currentPage}/$allPages") }
+        val num = currentChapter + 1
+        _chapter.update { it.copy(currentPage = num, allPages = "$num/$allPages") }
     }
 
     fun setAllPages(num: Int) {

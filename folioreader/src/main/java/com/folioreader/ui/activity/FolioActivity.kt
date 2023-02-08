@@ -21,6 +21,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.ColorFilter
 import android.graphics.PorterDuff
@@ -116,8 +117,8 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback,
     private var pagesBar: LinearLayout? = null
     private var pagesSeekbar: SeekBar? = null
     private var chapterTextView: TextView? = null
-    private var pagesAllTextView: TextView?= null
-    private var currentPageTextView: TextView?= null
+    private var pagesAllTextView: TextView? = null
+    private var currentPageTextView: TextView? = null
 
     private lateinit var viewModel: FolioViewModel
 
@@ -310,7 +311,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback,
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 try {
                     val index = seekBar!!.progress
-                    val href = pubBox!!.publication.readingOrder[index - 1].href!!
+                    val href = pubBox!!.publication.readingOrder[index].href!!
                     goToChapter(href)
                 } catch (e: Exception) {
                     Log.w("SeekBarListener", "onStopTrackingTouch Exception $e")
@@ -321,7 +322,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback,
         lifecycleScope.launch {
             viewModel.chapter.collect {
                 currentPageTextView?.text = "${it.currentPage}"
-                pagesSeekbar?.progress = it.currentPage
+                pagesSeekbar?.progress = it.currentPage - 1
                 chapterTextView?.text = it.chapter
                 pagesAllTextView?.text = it.allPages
             }
@@ -332,9 +333,13 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback,
         Log.v(LOG_TAG, "::setDayMode()")
 
         window.navigationBarColor = ContextCompat.getColor(this, R.color.white)
-        pagesBar?.setBackgroundColor(ContextCompat.getColor(this, R.color.app_gray))
-        //pagesSeekbar?.thumb?.colorFilter = ColorFilter(ContextCompat.getColor(this, R.color.black), PorterDuff.Mode.MULTIPLY)
-        //pagesSeekbar?.thumb?.setTint(ContextCompat.getColor(this, R.color.red))
+        pagesBar?.setBackgroundColor(ContextCompat.getColor(this, R.color.light_gray))
+        pagesSeekbar?.thumbTintList =
+            ColorStateList.valueOf(ContextCompat.getColor(this, R.color.dark_gray))
+        pagesSeekbar?.progressTintList =
+            ColorStateList.valueOf(ContextCompat.getColor(this, R.color.dark_gray))
+        pagesSeekbar?.secondaryProgressTintList =
+            ColorStateList.valueOf(ContextCompat.getColor(this, R.color.gray_text))
         chapterTextView?.setTextColor(ContextCompat.getColor(this, R.color.black))
         pagesAllTextView?.setTextColor(ContextCompat.getColor(this, R.color.black))
         currentPageTextView?.setTextColor(ContextCompat.getColor(this, R.color.black))
@@ -355,7 +360,12 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback,
         window.navigationBarColor = ContextCompat.getColor(this, R.color.black)
         // Bottom pages bar
         pagesBar?.setBackgroundColor(ContextCompat.getColor(this, R.color.black))
-        //pagesSeekbar?.setBackgroundColor(ContextCompat.getColor(this, R.color.white))
+        pagesSeekbar?.thumbTintList =
+            ColorStateList.valueOf(ContextCompat.getColor(this, R.color.white))
+        pagesSeekbar?.progressTintList =
+            ColorStateList.valueOf(ContextCompat.getColor(this, R.color.white))
+        pagesSeekbar?.progressBackgroundTintList =
+            ColorStateList.valueOf(ContextCompat.getColor(this, R.color.gray_text))
         chapterTextView?.setTextColor(ContextCompat.getColor(this, R.color.white))
         pagesAllTextView?.setTextColor(ContextCompat.getColor(this, R.color.white))
         currentPageTextView?.setTextColor(ContextCompat.getColor(this, R.color.white))
@@ -472,36 +482,38 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback,
         }
 
         // TODO: test
-        val pub = pubBox?.publication!!
-        Log.e("FolioActivity", "readingOrder size=${pub.readingOrder.size}")
-        pub.readingOrder.forEachIndexed() { index, it ->
-            Log.w("FolioActivity", "index=$index, title=${it.title}, href=${it.href}")
-            //chapterTextView.text = pubBox!!.publication.links[0].title
-        }
-        Log.e("FolioActivity", "tableOfContents size=${pub.tableOfContents.size}")
-        pub.tableOfContents.forEachIndexed() { index, it ->
-            Log.w("FolioActivity", "index=$index,  title=${it.title}, url=${it.href}")
-        }
-        Log.e("FolioActivity", "listOfTables size=${pub.listOfTables.size}")
-        pub.listOfTables.forEach {
-            Log.w("FolioActivity", "title=${it.title}, url=${it.href}")
-        }
-        Log.e("FolioActivity", "links size=${pub.links.size}")
-        pub.links.forEach {
-            Log.w("FolioActivity", "title=${it.title}, url=${it.href}")
-        }
-        Log.e("FolioActivity", "pageList size=${pub.pageList.size}")
-        pub.pageList.forEach {
-            Log.w("FolioActivity", "title=${it.title}, url=${it.href}")
-        }
-        Log.e("FolioActivity", "listOfIllustrations size=${pub.listOfIllustrations.size}")
-        pub.listOfIllustrations.forEach {
-            Log.w("FolioActivity", "title=${it.title}, url=${it.href}")
-        }
+//        val pub = pubBox?.publication!!
+//        Log.e("FolioActivity", "readingOrder size=${pub.readingOrder.size}")
+//        pub.readingOrder.forEachIndexed() { index, it ->
+//            Log.w("FolioActivity", "index=$index, title=${it.title}, href=${it.href}")
+//            //chapterTextView.text = pubBox!!.publication.links[0].title
+//        }
+//        Log.e("FolioActivity", "tableOfContents size=${pub.tableOfContents.size}")
+//        pub.tableOfContents.forEachIndexed() { index, it ->
+//            Log.w("FolioActivity", "index=$index,  title=${it.title}, url=${it.href}")
+//        }
+//        Log.e("FolioActivity", "listOfTables size=${pub.listOfTables.size}")
+//        pub.listOfTables.forEach {
+//            Log.w("FolioActivity", "title=${it.title}, url=${it.href}")
+//        }
+//        Log.e("FolioActivity", "links size=${pub.links.size}")
+//        pub.links.forEach {
+//            Log.w("FolioActivity", "title=${it.title}, url=${it.href}")
+//        }
+//        Log.e("FolioActivity", "pageList size=${pub.pageList.size}")
+//        pub.pageList.forEach {
+//            Log.w("FolioActivity", "title=${it.title}, url=${it.href}")
+//        }
+//        Log.e("FolioActivity", "listOfIllustrations size=${pub.listOfIllustrations.size}")
+//        pub.listOfIllustrations.forEach {
+//            Log.w("FolioActivity", "title=${it.title}, url=${it.href}")
+//        }
 
-        val allPages = pubBox?.publication?.readingOrder?.size ?: 0
-        viewModel.setAllPages(allPages)
-        pagesSeekbar?.max = allPages
+        val allPages = pubBox?.publication?.readingOrder?.size
+        viewModel.setAllPages(allPages ?: 0)
+        if (allPages != null) {
+            pagesSeekbar?.max = allPages - 1
+        }
 
         portNumber =
             intent.getIntExtra(FolioReader.EXTRA_PORT_NUMBER, DEFAULT_PORT_NUMBER)
@@ -704,13 +716,13 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback,
         distractionFreeMode = visibility != View.SYSTEM_UI_FLAG_VISIBLE
         Log.v(LOG_TAG, "-> distractionFreeMode = $distractionFreeMode")
 
-            if (distractionFreeMode) {
-                actionBar?.hide()
-                pagesBar?.visibility = GONE
-            } else {
-                actionBar?.show()
-                pagesBar?.visibility = VISIBLE
-            }
+        if (distractionFreeMode) {
+            actionBar?.hide()
+            pagesBar?.visibility = GONE
+        } else {
+            actionBar?.show()
+            pagesBar?.visibility = VISIBLE
+        }
 
     }
 
@@ -831,22 +843,29 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback,
                 positionOffset: Float,
                 positionOffsetPixels: Int
             ) {
-                viewModel.setCurrentPage(position + 1)
+                viewModel.setCurrentPage(position)
             }
 
             override fun onPageSelected(position: Int) {
                 Log.v(LOG_TAG, "-> onPageSelected -> DirectionalViewpager -> position = $position")
                 currentChapterIndex = position
-                viewModel.setCurrentPage(position + 1)
+                viewModel.setCurrentPage(position)
                 getChapterTitle(position)
             }
 
             fun getChapterTitle(position: Int) {
                 val url = spine?.get(position)?.href
+                var check = true
                 pubBox?.publication?.tableOfContents?.forEach {
                     if (it.href == url && !url.isNullOrEmpty()) {
-                        it.title?.let { it1 -> viewModel.setChapter(it1) }
+                        it.title?.let { it1 ->
+                            check = false
+                            viewModel.setChapter(it1)
+                        }
                     }
+                }
+                if (check) {
+                    viewModel.setChapter("")
                 }
             }
 

@@ -13,6 +13,8 @@
     <color name="dark_night">#090609</color>
     <color name="app_gray">#bcbcbc</color>
 
+    <color name="dark_gray">#535353</color>
+    <color name="light_gray">#F2F2F2</color>
     <color name="gray_text">#B6B6B6</color>
     <color name="red">#ff0000</color>
     <color name="night_text_color">#767676</color>
