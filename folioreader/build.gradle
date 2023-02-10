@@ -1,6 +1,5 @@
 apply plugin: 'com.android.library'
 apply from: '../config/quality/quality.gradle'
-//apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
@@ -17,7 +16,7 @@ ext {
     siteUrl = 'https://github.com/FolioReader/FolioReader-Android'
     gitUrl = 'https://github.com/FolioReader/FolioReader-Android.git'
 
-    libraryVersion = versions.folioreaderSdk
+    libraryVersion = folioreader_sdk_version
 
     developerId = 'mobisystech'
     developerName = 'Folio Reader'
@@ -30,13 +29,13 @@ ext {
 
 android {
     useLibrary 'org.apache.http.legacy'
-    compileSdkVersion versions.androidCompileSdk
+    compileSdkVersion 33
 
     defaultConfig {
-        minSdkVersion versions.androidMinSdk
-        targetSdkVersion versions.androidTargetSdk
-        versionCode versions.projectVersionCode
-        versionName versions.projectVersionName
+        minSdkVersion 21
+        targetSdkVersion 33
+        versionCode 1
+        versionName "1.0.0"
         vectorDrawables.useSupportLibrary = true
     }
 
@@ -70,7 +69,16 @@ android {
         abortOnError false
         lintConfig file("lint.xml")
     }
-
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    buildFeatures {
+        viewBinding true
+    }
     checkstyle {
         ignoreFailures = true
     }
@@ -79,35 +87,37 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
-    implementation "androidx.appcompat:appcompat:$versions.appcompat"
-    implementation "androidx.constraintlayout:constraintlayout:$versions.constraintLayout"
-    implementation "androidx.recyclerview:recyclerview:$versions.recyclerview"
-    implementation "com.google.android.material:material:$versions.material"
-    testImplementation 'junit:junit:4.12'
+    implementation "androidx.appcompat:appcompat:$appcompat_version"
+    implementation "androidx.constraintlayout:constraintlayout:$constraint_layout_version"
+    implementation "androidx.recyclerview:recyclerview:$recyclerview_version"
+    implementation "com.google.android.material:material:$material_version"
 
     implementation 'org.slf4j:slf4j-android:1.7.25'
     implementation 'com.daimajia.swipelayout:library:1.2.0@aar'
 
     //Kotlin
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlin"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation "androidx.core:core-ktx:$core_ktx_version"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_runtime_ktx_version"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0"
 
     implementation 'org.greenrobot:eventbus:3.1.1'
 
-    implementation "com.fasterxml.jackson.core:jackson-core:$versions.jackson"
-    implementation "com.fasterxml.jackson.core:jackson-annotations:$versions.jackson"
-    implementation "com.fasterxml.jackson.core:jackson-databind:$versions.jackson"
-    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$versions.jackson"
-    implementation "com.google.code.gson:gson:$versions.gson"
+    implementation "com.fasterxml.jackson.core:jackson-core:$jackson_version"
+    implementation "com.fasterxml.jackson.core:jackson-annotations:$jackson_version"
+    implementation "com.fasterxml.jackson.core:jackson-databind:$jackson_version"
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version"
+    implementation "com.google.code.gson:gson:$gson_version"
 
-    implementation "com.squareup.retrofit2:retrofit:$versions.retrofit"
-    implementation "com.squareup.retrofit2:converter-jackson:$versions.retrofit"
-    implementation "com.squareup.retrofit2:converter-gson:$versions.retrofit"
+    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    implementation "com.squareup.retrofit2:converter-jackson:$retrofit_version"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
 
     // R2 modules
-    api("com.github.codetoart:r2-shared-kotlin:$versions.r2SharedKotlin") {
+    api("com.github.codetoart:r2-shared-kotlin:$r2_shared_kotlin_version") {
         changing = true
     }
-    api("com.github.codetoart:r2-streamer-kotlin:$versions.r2StreamerKotlin") {
+    api("com.github.codetoart:r2-streamer-kotlin:$r2_streamer_kotlin_version") {
         exclude group: "org.slf4j", module: "slf4j-api"
         changing = true
     }
@@ -116,5 +126,8 @@ dependencies {
     implementation 'org.springframework:spring-core:4.3.19.RELEASE'
 
     // Lifecycle
-    implementation "androidx.lifecycle:lifecycle-extensions:$versions.lifecycle"
+    implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
+
+    // Test
+    testImplementation 'junit:junit:4.12'
 }

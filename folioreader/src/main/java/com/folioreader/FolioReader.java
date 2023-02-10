@@ -11,6 +11,7 @@ import android.os.Parcelable;
 import androidx.annotation.Nullable;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.folioreader.data.EpubSourceType;
 import com.folioreader.model.HighLight;
 import com.folioreader.model.HighlightImpl;
 import com.folioreader.model.locators.ReadLocator;
@@ -177,15 +178,15 @@ public class FolioReader {
         if (rawId != 0) {
             intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, rawId);
             intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE,
-                    FolioActivity.EpubSourceType.RAW);
+                    EpubSourceType.RAW);
         } else if (assetOrSdcardPath.contains(Constants.ASSET)) {
             intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, assetOrSdcardPath);
             intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE,
-                    FolioActivity.EpubSourceType.ASSETS);
+                    EpubSourceType.ASSETS);
         } else {
             intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_PATH, assetOrSdcardPath);
             intent.putExtra(FolioActivity.INTENT_EPUB_SOURCE_TYPE,
-                    FolioActivity.EpubSourceType.SD_CARD);
+                    EpubSourceType.SD_CARD);
         }
 
         return intent;

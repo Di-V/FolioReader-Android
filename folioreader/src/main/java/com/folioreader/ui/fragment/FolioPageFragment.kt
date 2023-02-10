@@ -25,8 +25,6 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.folioreader.Config
 import com.folioreader.FolioReader
 import com.folioreader.R
-import com.folioreader.mediaoverlay.MediaController
-import com.folioreader.mediaoverlay.MediaControllerCallbacks
 import com.folioreader.model.HighLight
 import com.folioreader.model.HighlightImpl
 import com.folioreader.model.event.*
@@ -55,8 +53,7 @@ import java.util.regex.Pattern
 /**
  * Created by mahavir on 4/2/16.
  */
-class FolioPageFragment : Fragment(),
-    HtmlTaskCallback, MediaControllerCallbacks, FolioWebView.SeekBarListener {
+class FolioPageFragment : Fragment(), HtmlTaskCallback, FolioWebView.SeekBarListener {
 
     companion object {
 
@@ -114,7 +111,6 @@ class FolioPageFragment : Fragment(),
 
     private var highlightStyle: String? = null
 
-    private var mediaController: MediaController? = null
     private var mConfig: Config? = null
     private var mBookId: String? = null
     var searchLocatorVisible: SearchLocator? = null
@@ -142,25 +138,15 @@ class FolioPageFragment : Fragment(),
 
         EventBus.getDefault().register(this)
 
-        spineIndex = arguments!!.getInt(BUNDLE_SPINE_INDEX)
-        mBookTitle = arguments!!.getString(BUNDLE_BOOK_TITLE)
-        spineItem = arguments!!.getSerializable(BUNDLE_SPINE_ITEM) as Link
-        mBookId = arguments!!.getString(FolioReader.EXTRA_BOOK_ID)
+        spineIndex = requireArguments().getInt(BUNDLE_SPINE_INDEX)
+        mBookTitle = requireArguments().getString(BUNDLE_BOOK_TITLE)
+        spineItem = requireArguments().getSerializable(BUNDLE_SPINE_ITEM) as Link
+        mBookId = requireArguments().getString(FolioReader.EXTRA_BOOK_ID)
 
         chapterUrl = Uri.parse(mActivityCallback?.streamerUrl + spineItem.href!!.substring(1))
 
         searchLocatorVisible = savedInstanceState?.getParcelable(BUNDLE_SEARCH_LOCATOR)
 
-        if (spineItem != null) {
-            // SMIL Parsing not yet implemented in r2-streamer-kotlin
-            //if (spineItem.getProperties().contains("media-overlay")) {
-            //    mediaController = new MediaController(getActivity(), MediaController.MediaType.SMIL, this);
-            //    hasMediaOverlay = true;
-            //} else {
-            mediaController = MediaController(activity, MediaController.MediaType.TTS, this)
-            mediaController!!.setTextToSpeech(activity)
-            //}
-        }
         highlightStyle = HighlightImpl.HighlightStyle.classForStyle(HighlightImpl.HighlightStyle.Normal)
         mRootView = inflater.inflate(R.layout.folio_page_fragment, container, false)
         mPagesLeftTextView = mRootView!!.findViewById<View>(R.id.pagesLeft) as TextView
@@ -175,34 +161,6 @@ class FolioPageFragment : Fragment(),
         updatePagesLeftTextBg()
 
         return mRootView
-    }
-
-    /**
-     * [EVENT BUS FUNCTION]
-     * Function triggered from [MediaControllerFragment.initListeners] when pause/play
-     * button is clicked
-     *
-     * @param event of type [MediaOverlayPlayPauseEvent] contains if paused/played
-     */
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun pauseButtonClicked(event: MediaOverlayPlayPauseEvent) {
-        if (isAdded && spineItem!!.href == event.href) {
-            mediaController!!.stateChanged(event)
-        }
-    }
-
-    /**
-     * [EVENT BUS FUNCTION]
-     * Function triggered from [MediaControllerFragment.initListeners] when speed
-     * change buttons are clicked
-     *
-     * @param event of type [MediaOverlaySpeedEvent] contains selected speed
-     * type HALF,ONE,ONE_HALF and TWO.
-     */
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun speedChanged(event: MediaOverlaySpeedEvent) {
-        if (mediaController != null)
-            mediaController!!.setSpeed(event.speed)
     }
 
     /**
@@ -561,12 +519,6 @@ class FolioPageFragment : Fragment(),
                     mTotalMinutes = 0
                 }
 
-            } else {
-                // to handle TTS playback when highlight is deleted.
-                val p = Pattern.compile("[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}")
-                if (!p.matcher(message).matches() && message != "undefined" && isCurrentFragment) {
-                    mediaController!!.speakAudio(message)
-                }
             }
 
             result.confirm()
@@ -577,9 +529,6 @@ class FolioPageFragment : Fragment(),
     override fun onStop() {
         super.onStop()
         Log.v(LOG_TAG, "-> onStop -> " + spineItem.href + " -> " + isCurrentFragment)
-
-        mediaController!!.stop()
-        //TODO save last media overlay item
 
         if (isCurrentFragment)
             getLastReadLocator()
@@ -612,7 +561,7 @@ class FolioPageFragment : Fragment(),
 
             val intent = Intent(FolioReader.ACTION_SAVE_READ_LOCATOR)
             intent.putExtra(FolioReader.EXTRA_READ_LOCATOR, lastReadLocator as Parcelable?)
-            LocalBroadcastManager.getInstance(context!!).sendBroadcast(intent)
+            LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(intent)
 
             (this as java.lang.Object).notify()
         }
@@ -639,7 +588,7 @@ class FolioPageFragment : Fragment(),
 
     private fun setupScrollBar() {
         UiUtil.setColorIntToDrawable(mConfig!!.themeColor, mScrollSeekbar!!.progressDrawable)
-        val thumbDrawable = ContextCompat.getDrawable(activity!!, R.drawable.icons_sroll)
+        val thumbDrawable = ContextCompat.getDrawable(requireActivity(), R.drawable.icons_sroll)
         UiUtil.setColorIntToDrawable(mConfig!!.themeColor, thumbDrawable!!)
         mScrollSeekbar!!.thumb = thumbDrawable
     }
@@ -789,47 +738,19 @@ class FolioPageFragment : Fragment(),
         }
     }
 
-    override fun resetCurrentIndex() {
-        if (isCurrentFragment) {
-            mWebview!!.loadUrl("javascript:rewindCurrentIndex()")
-        }
-    }
-
-    @JavascriptInterface
-    fun onReceiveHighlights(html: String?) {
-        if (html != null) {
-            rangy = HighlightUtil.createHighlightRangy(
-                activity!!.applicationContext,
-                html,
-                mBookId,
-                pageName,
-                spineIndex,
-                rangy
-            )
-        }
-    }
-
-    override fun highLightText(fragmentId: String) {
-        mWebview!!.loadUrl(String.format(getString(R.string.audio_mark_id), fragmentId))
-    }
-
-    override fun highLightTTS() {
-        mWebview!!.loadUrl("javascript:alert(getSentenceWithIndex('epub-media-overlay-playing'))")
-    }
-
     @JavascriptInterface
     fun getUpdatedHighlightId(id: String?, style: String) {
         if (id != null) {
             val highlightImpl = HighLightTable.updateHighlightStyle(id, style)
             if (highlightImpl != null) {
                 HighlightUtil.sendHighlightBroadcastEvent(
-                    activity!!.applicationContext,
+                    requireActivity().applicationContext,
                     highlightImpl,
                     HighLight.HighLightAction.MODIFY
                 )
             }
             val rangyString = HighlightUtil.generateRangyString(pageName)
-            activity!!.runOnUiThread { loadRangy(rangyString) }
+            requireActivity().runOnUiThread { loadRangy(rangyString) }
 
         }
     }
@@ -840,7 +761,7 @@ class FolioPageFragment : Fragment(),
         if (isCurrentFragment) {
             if (outState != null)
                 outState!!.putSerializable(BUNDLE_READ_LOCATOR_CONFIG_CHANGE, lastReadLocator)
-            if (activity != null && !activity!!.isFinishing && lastReadLocator != null)
+            if (activity != null && !requireActivity().isFinishing && lastReadLocator != null)
                 mActivityCallback!!.storeLastReadLocator(lastReadLocator)
         }
         if (mWebview != null) mWebview!!.destroy()
