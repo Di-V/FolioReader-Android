@@ -55,6 +55,7 @@ public class FolioDatabaseHelper extends SQLiteOpenHelper {
     public final void onCreate(final SQLiteDatabase db) {
         Log.d("create table highlight", "****" + HighLightTable.SQL_CREATE);
         db.execSQL(HighLightTable.SQL_CREATE);
+        db.execSQL(BookmarkTable.SQL_CREATE);
     }
 
     @Override

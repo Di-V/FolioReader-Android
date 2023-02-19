@@ -22,9 +22,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.res.ColorStateList
-import android.graphics.Color
-import android.graphics.ColorFilter
-import android.graphics.PorterDuff
 import android.graphics.Rect
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
@@ -60,6 +57,7 @@ import com.folioreader.model.DisplayUnit
 import com.folioreader.model.HighlightImpl
 import com.folioreader.model.event.ReloadDataEvent
 import com.folioreader.model.locators.ReadLocator
+import com.folioreader.model.sqlite.BookmarkTable
 import com.folioreader.ui.adapter.FolioPageFragmentAdapter
 import com.folioreader.ui.fragment.FolioPageFragment
 import com.folioreader.ui.view.DirectionalViewpager
@@ -77,6 +75,8 @@ import org.readium.r2.streamer.parser.EpubParser
 import org.readium.r2.streamer.parser.PubBox
 import org.readium.r2.streamer.server.Server
 import java.lang.ref.WeakReference
+import java.text.SimpleDateFormat
+import java.util.*
 
 class FolioActivity : AppCompatActivity(), FolioActivityCallback,
     View.OnSystemUiVisibilityChangeListener {
@@ -224,8 +224,24 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback,
 
     override fun onStop() {
         super.onStop()
-        Log.v(LOG_TAG, "-> onStop")
+        Log.i(LOG_TAG, "::onStop()")
         topActivity = false
+
+        try {
+            Log.v(LOG_TAG, "-> save last page")
+            val readLocator = currentFragment!!.getLastReadLocator()
+            val name = "bookmark"
+            val simpleDateFormat = SimpleDateFormat(DATE_FORMAT, Locale.getDefault())
+            val id = BookmarkTable(this).insertBookmark(
+                mBookId,
+                simpleDateFormat.format(Date()),
+                name,
+                readLocator!!.toJson().toString()
+            )
+        } catch (e: Exception) {
+            Log.e(LOG_TAG, "::onPause() Exception=$e")
+        }
+        Log.i(LOG_TAG, "::onPause() end")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -833,6 +849,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback,
     }
 
     private fun configFolio() {
+        Log.v(LOG_TAG, "::configFolio()")
 
         mFolioPageViewPager = findViewById(R.id.folioPageViewPager)
         // Replacing with addOnPageChangeListener(), onPageSelected() is not invoked
@@ -914,6 +931,25 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback,
         }
         currentChapterIndex = getChapterIndex(readLocator)
         mFolioPageViewPager!!.currentItem = currentChapterIndex
+
+        initLastPage()
+    }
+
+    private fun initLastPage() {
+        try {
+            Log.v(LOG_TAG, "load last page")
+            val bookmark = BookmarkTable.getBookmarksForID(mBookId, this).getOrNull(0) ?: return
+            val bookmarkReadLocator = ReadLocator.fromJson(bookmark["readlocator"].toString())
+            currentChapterIndex = getChapterIndex(bookmarkReadLocator)
+            mFolioPageViewPager!!.currentItem = currentChapterIndex
+            val folioPageFragment = currentFragment
+            val handlerTime = Handler()
+            handlerTime.postDelayed({
+                folioPageFragment!!.scrollToCFI(bookmarkReadLocator!!.locations.cfi.toString())
+            }, 1000)
+        } catch (e: Exception) {
+            Log.e(LOG_TAG, "load last page failed, $e")
+        }
     }
 
     private fun getChapterIndex(readLocator: ReadLocator?): Int {
@@ -947,7 +983,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback,
      */
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        Log.v(LOG_TAG, "-> onSaveInstanceState")
+        Log.v(LOG_TAG, "::onSaveInstanceState(bundle=$outState)")
         this.outState = outState
 
         outState.putBoolean(BUNDLE_DISTRACTION_FREE_MODE, distractionFreeMode)

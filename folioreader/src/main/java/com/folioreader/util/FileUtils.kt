@@ -13,19 +13,4 @@ fun getFolioEpubFolderPath(epubFileName: String, context: Context): String {
 
     val outputFile = File(outputDir, epubFileName)
     return outputFile.path
-
-//    var out: FileOutputStream? = null
-//    try {
-//        out = FileOutputStream(outputFile)
-//        bitmap.compress(Bitmap.CompressFormat.PNG, 0 /* ignored for PNG */, out)
-//    } finally {
-//        out?.let {
-//            try {
-//                it.close()
-//            } catch (ignore: IOException) {
-//            }
-//        }
-//    }
-//
-//    return Uri.fromFile(outputFile)
 }

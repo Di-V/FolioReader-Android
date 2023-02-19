@@ -48,7 +48,6 @@ import org.greenrobot.eventbus.ThreadMode
 import org.readium.r2.shared.Link
 import org.readium.r2.shared.Locations
 import java.util.*
-import java.util.regex.Pattern
 
 /**
  * Created by mahavir on 4/2/16.
@@ -81,7 +80,6 @@ class FolioPageFragment : Fragment(), HtmlTaskCallback, FolioWebView.SeekBarList
 
     private lateinit var uiHandler: Handler
     private var mHtmlString: String? = null
-    private val hasMediaOverlay = false
     private var mAnchorId: String? = null
     private var rangy = ""
     private var highlightId: String? = null
@@ -528,14 +526,14 @@ class FolioPageFragment : Fragment(), HtmlTaskCallback, FolioWebView.SeekBarList
 
     override fun onStop() {
         super.onStop()
-        Log.v(LOG_TAG, "-> onStop -> " + spineItem.href + " -> " + isCurrentFragment)
+        Log.v(LOG_TAG, "::onStop() -> " + spineItem.href + " -> " + isCurrentFragment)
 
         if (isCurrentFragment)
             getLastReadLocator()
     }
 
     fun getLastReadLocator(): ReadLocator? {
-        Log.v(LOG_TAG, "-> getLastReadLocator -> " + spineItem.href!!)
+        Log.v(LOG_TAG, "::getLastReadLocator(), href=" + spineItem.href!!)
         try {
             synchronized(this) {
                 mWebview!!.loadUrl(getString(R.string.callComputeLastReadCfi))
@@ -714,7 +712,7 @@ class FolioPageFragment : Fragment(), HtmlTaskCallback, FolioWebView.SeekBarList
      */
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        Log.v(LOG_TAG, "-> onSaveInstanceState -> ${spineItem.href}")
+        Log.v(LOG_TAG, "::onSaveInstanceState() -> ${spineItem.href}")
 
         this.outState = outState
         outState.putParcelable(BUNDLE_SEARCH_LOCATOR, searchLocatorVisible)
@@ -780,7 +778,7 @@ class FolioPageFragment : Fragment(), HtmlTaskCallback, FolioWebView.SeekBarList
     }
 
     fun highlightSearchLocator(searchLocator: SearchLocator) {
-        Log.v(LOG_TAG, "-> highlightSearchLocator")
+        Log.v(LOG_TAG, "::highlightSearchLocator()")
         this.searchLocatorVisible = searchLocator
 
         if (loadingView != null && loadingView!!.visibility != View.VISIBLE) {
@@ -793,9 +791,10 @@ class FolioPageFragment : Fragment(), HtmlTaskCallback, FolioWebView.SeekBarList
         }
     }
 
-    fun clearSearchLocator() {
-        Log.v(LOG_TAG, "-> clearSearchLocator -> " + spineItem.href!!)
-        mWebview!!.loadUrl(getString(R.string.callClearSelection))
-        searchLocatorVisible = null
+    fun scrollToCFI(cfi: String) {
+        if (loadingView != null && loadingView!!.visibility != View.VISIBLE) {
+            loadingView!!.show()
+            mWebview!!.loadUrl(String.format(getString(R.string.callScrollToCfi), cfi))
+        }
     }
 }
