@@ -52,7 +52,7 @@ public class BookmarkTable {
         }
         ArrayList<HashMap> bookmarks = new ArrayList<>();
         Cursor c = Bookmarkdatabase.rawQuery("SELECT * FROM "
-                + TABLE_NAME + " WHERE " + bookID + " = \"" + id + "\"", null);
+                + TABLE_NAME + " WHERE " + bookID + " = \"" + id + "\" ORDER BY " + ID + " DESC", null);
         while (c.moveToNext()) {
             HashMap<String, String> name_value = new HashMap<String, String>();
             name_value.put("name", c.getString(c.getColumnIndex(name)));

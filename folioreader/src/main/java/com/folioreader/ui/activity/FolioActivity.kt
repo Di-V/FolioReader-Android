@@ -185,7 +185,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback,
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        Log.v(LOG_TAG, "-> onNewIntent")
+        Log.v(LOG_TAG, "::onNewIntent()")
 
         val action = getIntent().action
         if (action != null && action == FolioReader.ACTION_CLOSE_FOLIOREADER) {
@@ -212,7 +212,7 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback,
 
     override fun onResume() {
         super.onResume()
-        Log.v(LOG_TAG, "-> onResume")
+        Log.v(LOG_TAG, "::onResume()")
         topActivity = true
 
         val action = intent.action
@@ -239,9 +239,9 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback,
                 readLocator!!.toJson().toString()
             )
         } catch (e: Exception) {
-            Log.e(LOG_TAG, "::onPause() Exception=$e")
+            Log.e(LOG_TAG, "save last page exception=$e")
         }
-        Log.i(LOG_TAG, "::onPause() end")
+        Log.i(LOG_TAG, "::onStop() end")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -292,9 +292,9 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback,
     }
 
     private fun initMode() {
-        val config = AppUtil.getSavedConfig(applicationContext)!!
+        val config = AppUtil.getSavedConfig(applicationContext)
 
-        if (config.isNightMode) {
+        if (config?.isNightMode == true) {
             setNightMode()
         } else {
             setDayMode()
@@ -399,12 +399,11 @@ class FolioActivity : AppCompatActivity(), FolioActivityCallback,
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
 
-        val config = AppUtil.getSavedConfig(applicationContext)!!
-        if (config.isNightMode) {
-            UiUtil.setColorIntToDrawable(
-                ContextCompat.getColor(this, R.color.white),
-                menu.findItem(R.id.nightMode).icon
-            )
+        val config = AppUtil.getSavedConfig(applicationContext)
+        if (config?.isNightMode == true) {
+            val drawable = ContextCompat.getDrawable(this, R.drawable.ic_day_mode)
+            UiUtil.setColorIntToDrawable(ContextCompat.getColor(this, R.color.white), drawable)
+            menu.findItem(R.id.nightMode).icon = drawable
         } else {
             val drawable = ContextCompat.getDrawable(this, R.drawable.ic_night_mode)
             UiUtil.setColorIntToDrawable(ContextCompat.getColor(this, R.color.black), drawable)
